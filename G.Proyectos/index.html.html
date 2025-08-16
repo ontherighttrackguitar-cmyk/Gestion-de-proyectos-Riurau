@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Administrador de Proyectos — Standalone</title>
+  <style>
+    /* Minimal, Tailwind-like utility set (subset only) */
+    :root {
+      --bg: #f6f9f6;
+      --card: #ffffff;
+      --muted: #4d5e4d;
+      --text: #1a2b1a;
+      --primary: #2e7d32;
+      --accent: #4caf50;
+      --danger: #c62828;
+      --warn: #ef6c00;
+      --purple: #7c3aed;
+      --border: #c8e6c9;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#ffffff,#f6f7fb);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;min-height:100svh}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    h1{font-size:28px;letter-spacing:.2px;margin:0 0 16px;font-weight:700}
+    h2{font-size:18px;margin:0 0 10px;color:#334155}
+    .card{background:var(--card);border:1px solid var(--border);backdrop-filter:blur(2px);border-radius:16px;padding:16px;box-shadow:0 6px 18px rgba(2,6,23,.08)}
+    .grid{display:grid;gap:16px}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .grid-2{grid-template-columns:repeat(2,1fr)}
+    @media (max-width:860px){.grid-3,.grid-2{grid-template-columns:1fr}}
+    input,select,button{border-radius:12px;border:1px solid var(--border);background:#ffffff;color:var(--text);padding:10px 12px;font-size:14px}
+    input:focus,select:focus,button:focus{outline:2px solid var(--primary);outline-offset:1px}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .btn{cursor:pointer;border:1px solid var(--border);background:#ffffff}
+    .btn.primary{background:linear-gradient(90deg,#2563eb,#06b6d4);border:0;color:white}
+    .btn.danger{background:#fff5f5;border-color:#fecaca;color:#b91c1c}
+    .btn.ghost{background:transparent}
+    .tag{font-size:12px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px dashed var(--border);padding:10px;text-align:left}
+    th{font-weight:600;color:#cbd5e1}
+    tr:hover td{background:rgba(37,99,235,.06)}
+    .right{text-align:right}
+    .muted{color:var(--muted)}
+    .ok{color:var(--accent)}
+    .bad{color:var(--danger)}
+    .warn{color:var(--warn)}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f8fafc;border:1px solid var(--border);padding:1px 6px;border-radius:6px;color:#334155}
+    .pill{padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:#f8fafc;font-size:12px;color:#334155}
+    .section-title{display:flex;align-items:center;gap:8px;margin:2px 0 12px}
+    .section-title .dot{width:8px;height:8px;border-radius:999px;background:var(--primary)}
+    .sticky{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.8));backdrop-filter:blur(6px);padding:10px;margin:-10px -10px 12px;border-bottom:1px solid var(--border);border-radius:16px 16px 0 0}
+    dialog{border:1px solid var(--border);background:#ffffff;border-radius:16px;padding:0;max-width:520px;width:95%}
+    dialog::backdrop{background:rgba(2,6,23,.25);backdrop-filter:blur(2px)}
+    .dlg-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .dlg-body{padding:16px}
+    .dlg-actions{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+    .help{font-size:12px;color:#a3b2c7}
+    .spacer{height:6px}
+    .sep{height:1px;background:var(--border);margin:10px 0}
+    .caps{letter-spacing:.04em;text-transform:uppercase;font-size:11px;color:#9fb2d8}
+    .error{color:#fecaca}
+    .success{color:#bbf7d0}
+    .mini{font-size:12px}
+    .mb8{margin-bottom:8px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="row" style="justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div>
+        <h1>Administrador de Proyectos</h1>
+        <div class="muted mini">Standalone • sin dependencias externas</div>
+      </div>
+      <div class="row">
+        <button id="btnExport" class="btn">Guardar .json</button>
+        <label class="btn" for="fileImport" style="display:inline-block">Abrir .json</label>
+        <input id="fileImport" type="file" accept="application/json" aria-label="Importar proyecto (.json)" style="display:none" />
+        <span id="saveStatus" class="tag" aria-live="polite" style="margin-left:8px"></span>
+      </div>
+    </header>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h2>Proyecto</h2></div>
+        <label for="projectName">Nombre del proyecto</label>
+        <input id="projectName" placeholder="Proyecto sin título" />
+        <div class="spacer"></div>
+        <div class="row">
+          <span class="pill">Guardado local</span>
+          <span class="tag">Claves por nombre</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h2>Base y Margen Objetivo</h2></div>
+        <div class="grid grid-2">
+          <div>
+            <label for="baseAmt">Base (€)</label>
+            <input id="baseAmt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00" />
+          </div>
+          <div>
+            <label for="targetMargin">Margen objetivo (%)</label>
+            <input id="targetMargin" type="number" step="0.1" inputmode="decimal" placeholder="15" />
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="help">El margen calculado puede ser negativo si los costes superan la base.</div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h2>Resumen</h2></div>
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div class="caps">Costes</div>
+            <div id="totalCosts" class="mini muted">—</div>
+          </div>
+          <div>
+            <div class="caps">Margen calculado</div>
+            <div id="margenCalc" class="mini ok">—</div>
+          </div>
+          <div>
+            <div class="caps">Margen objetivo (€)</div>
+            <div id="margenTarget" class="mini muted">—</div>
+          </div>
+          <div>
+            <div class="caps">Saldo</div>
+            <div id="saldo" class="mini">—</div>
+          </div>
+        </div>
+        <div id="warnNeg" class="help error" style="display:none;margin-top:8px">⚠️ El proyecto va en negativo (margen &lt; 0). Revisa partidas o ajusta la base.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="section-title sticky">
+        <span class="dot"></span><h2>Partidas</h2>
+        <div class="row" style="margin-left:auto">
+          <button id="btnAdd" class="btn primary" type="button" aria-label="Añadir partida">Añadir partida</button>
+        </div>
+      </div>
+      <div class="row muted mini" style="margin-bottom:8px"><span class="kbd">Tab</span> para moverte • <span class="kbd">Enter</span> para guardar • <span class="kbd">Del</span> para borrar</div>
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th style="width:18%">Categoría</th>
+            <th>Descripción</th>
+            <th class="right" style="width:18%">Importe (€)</th>
+            <th style="width:120px">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="muted mini">Las partidas se agrupan por categoría en el gráfico inferior.</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h2>Distribución</h2></div>
+        <canvas id="donut" width="520" height="320" aria-label="Doughnut de base, costes, desvío/margen"></canvas>
+      </div>
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h2>Costes por categoría</h2></div>
+        <canvas id="bars" width="520" height="320" aria-label="Barras por categoría"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="dlg">
+    <div class="dlg-header">
+      <strong>Editar partida</strong>
+      <button class="btn ghost" id="dlgClose" type="button" aria-label="Cerrar">✕</button>
+    </div>
+    <form method="dialog">
+      <div class="dlg-body grid">
+        <div>
+          <label for="dlgCat">Categoría</label>
+          <input id="dlgCat" />
+        </div>
+        <div>
+          <label for="dlgDesc">Descripción</label>
+          <input id="dlgDesc" />
+        </div>
+        <div>
+          <label for="dlgAmt">Importe (€)</label>
+          <input id="dlgAmt" type="number" step="0.01" inputmode="decimal" />
+        </div>
+      </div>
+      <div class="dlg-actions">
+        <button id="dlgDel" type="button" class="btn danger" aria-label="Borrar partida">Borrar</button>
+        <button id="dlgOk" type="button" class="btn primary" aria-label="Guardar cambios">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // ===== Utilidades =====
+
+    function nowISOCompact(){
+      const d = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
+    }
+    const saveStatusEl = document.getElementById('saveStatus');
+    let savingTicker;
+
+    function setSaving(){
+      if (!saveStatusEl) return;
+      saveStatusEl.textContent = 'Guardando…';
+      clearTimeout(savingTicker);
+    }
+    function setSaved(){
+      if (!saveStatusEl) return;
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      saveStatusEl.textContent = `Guardado ${hh}:${mm}`;
+    }
+
+    const ES_EUR = new Intl.NumberFormat('es-ES', { style:'currency', currency:'EUR' });
+    const Q = s => document.querySelector(s);
+    const CE = (tag, cls) => { const el = document.createElement(tag); if (cls) el.className = cls; return el; };
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      }[m]));
+    }
+
+    function uid(){ return Math.random().toString(36).slice(2,10); }
+    function lsKey(name){ return 'proj:' + (name || 'Proyecto sin título'); }
+
+    // Debounce para persistencia
+    const saveDebounced = (() => {
+      let t; 
+      return () => { clearTimeout(t); t = setTimeout(saveToLocalStorage, 300); };
+    })();
+
+    // ===== Estado =====
+    let state = {
+      version: 1,
+      projectName: 'Proyecto sin título',
+      base: 0,
+      targetMarginPct: 15,
+      items: [] // {id, cat, desc, amount}
+    };
+
+    // ===== Elementos =====
+    const el = {
+      projectName: Q('#projectName'),
+      baseAmt: Q('#baseAmt'),
+      targetMargin: Q('#targetMargin'),
+      totalCosts: Q('#totalCosts'),
+      margenCalc: Q('#margenCalc'),
+      margenTarget: Q('#margenTarget'),
+      saldo: Q('#saldo'),
+      warnNeg: Q('#warnNeg'),
+      tbody: Q('#tbody'),
+      donut: Q('#donut'),
+      bars: Q('#bars'),
+      dlg: Q('#dlg'),
+      dlgCat: Q('#dlgCat'),
+      dlgDesc: Q('#dlgDesc'),
+      dlgAmt: Q('#dlgAmt'),
+      dlgOk: Q('#dlgOk'),
+      dlgDel: Q('#dlgDel'),
+      dlgClose: Q('#dlgClose'),
+      btnAdd: Q('#btnAdd'),
+      btnExport: Q('#btnExport'),
+      fileImport: Q('#fileImport'),
+    };
+
+    // ===== Persistencia =====
+    function saveToLocalStorage(){
+      setSaving();
+      localStorage.setItem(lsKey(state.projectName), JSON.stringify(state));
+      setSaved();
+    }
+    function loadFromLocalStorage(name){
+      const raw = localStorage.getItem(lsKey(name));
+      if (!raw) return false;
+      try { state = JSON.parse(raw); return true; } catch { return false; }
+    }
+
+    // ===== Cálculos =====
+    function computeTotals(){
+      const byCat = {};
+      let totalCosts = 0;
+      for (const it of state.items){
+        const a = Number(it.amount)||0;
+        totalCosts += a;
+        const k = it.cat || 'Sin categoría';
+        byCat[k] = (byCat[k]||0) + a;
+      }
+      const marginRaw = state.base - totalCosts;
+      const targetMarginAmt = state.base * (Number(state.targetMarginPct)||0) / 100;
+      const saldo = marginRaw - targetMarginAmt;
+      return { byCat, totalCosts, marginRaw, targetMarginAmt, saldo };
+    }
+
+    // ===== Render =====
+    function render(){
+      // Inputs
+      el.projectName.value = state.projectName;
+      el.baseAmt.value = String(state.base);
+      el.targetMargin.value = String(state.targetMarginPct);
+
+      const { byCat, totalCosts, marginRaw, targetMarginAmt, saldo } = computeTotals();
+
+      // Resumen
+      el.totalCosts.textContent = ES_EUR.format(totalCosts);
+      el.margenCalc.textContent = ES_EUR.format(marginRaw);
+      el.margenCalc.classList.toggle('ok', marginRaw >= 0);
+      el.margenCalc.classList.toggle('bad', marginRaw < 0);
+      el.margenTarget.textContent = ES_EUR.format(targetMarginAmt);
+      el.saldo.textContent = ES_EUR.format(saldo);
+      el.saldo.classList.toggle('ok', saldo >= 0);
+      el.saldo.classList.toggle('bad', saldo < 0);
+      el.warnNeg.style.display = marginRaw < 0 ? 'block' : 'none';
+
+      // Tabla
+      el.tbody.innerHTML = '';
+      for (const it of state.items){
+        const tr = CE('tr');
+        const tdCat = CE('td'); tdCat.textContent = it.cat || '—';
+        const tdDesc = CE('td'); tdDesc.innerHTML = it.desc ? escapeHtml(it.desc) : '<span class="muted">—</span>';
+        const tdAmt = CE('td', 'right'); tdAmt.textContent = ES_EUR.format(Number(it.amount)||0);
+        const tdAct = CE('td');
+        const btnE = CE('button','btn mini'); btnE.type='button'; btnE.textContent='Editar'; btnE.setAttribute('aria-label','Editar partida'); btnE.onclick=()=>openEdit(it.id);
+        const btnX = CE('button','btn danger mini'); btnX.type='button'; btnX.textContent='Borrar'; btnX.setAttribute('aria-label','Borrar partida'); btnX.onclick=()=>removeItem(it.id);
+        tdAct.append(btnE,' ',btnX);
+        tr.append(tdCat, tdDesc, tdAmt, tdAct);
+        el.tbody.append(tr);
+      }
+
+      // Gráficos
+      drawDonut(el.donut, totalCosts, marginRaw);
+      drawBars(el.bars, byCat);
+    }
+
+    // ===== Gráficos (canvas puros, sin librerías) =====
+    function drawDonut(canvas, totalCosts, marginRaw){
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0,0,W,H);
+
+      // Datos: Base, Costes, Desvío (si <0), Margen (si >0)
+      const overrun = marginRaw < 0 ? Math.abs(marginRaw) : 0;
+      const marginPos = marginRaw > 0 ? marginRaw : 0;
+      const parts = [
+        { label:'Base', value: state.base, color:'#0EA5E9' },
+        { label:'Costes', value: totalCosts, color:'#EF4444' },
+      ];
+      if (overrun) parts.push({ label:'Desvío', value: overrun, color:'#8B5CF6' });
+      if (marginPos) parts.push({ label:'Margen', value: marginPos, color:'#22C55E' });
+
+      const sum = parts.reduce((a,b)=>a+b.value,0) || 1;
+      const cx = W/2, cy = H/2, r = Math.min(W,H)*0.36, cut = r*0.55;
+
+      let start = -Math.PI/2;
+      for (const p of parts){
+        const ang = (p.value/sum) * Math.PI*2;
+        ctx.beginPath();
+        ctx.moveTo(cx,cy);
+        ctx.fillStyle = p.color;
+        ctx.arc(cx,cy,r,start,start+ang);
+        ctx.closePath();
+        ctx.fill();
+        start += ang;
+      }
+      // Agujero
+      ctx.globalCompositeOperation='destination-out';
+      ctx.beginPath();
+      ctx.arc(cx,cy,cut,0,Math.PI*2);
+      ctx.fill();
+      ctx.globalCompositeOperation='source-over';
+
+      // Leyenda
+      const left = 24, top = 16;
+      let y = top;
+      ctx.font = '12px ui-sans-serif, system-ui, -apple-system';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText('Leyenda', left, y); y+=16;
+      for (const p of parts){
+        ctx.fillStyle = p.color;
+        ctx.fillRect(left, y-10, 10, 10);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText(`${p.label}: ${ES_EUR.format(p.value)}`, left+16, y);
+        y+=16;
+      }
+
+      // Centro
+      ctx.fillStyle = '#94a3b8';
+      ctx.textAlign='center';
+      ctx.font='11px ui-sans-serif, system-ui, -apple-system';
+      ctx.fillText('Margen calc.', cx, cy-6);
+      ctx.fillStyle = marginRaw >= 0 ? '#22C55E' : '#EF4444';
+      ctx.font='bold 16px ui-sans-serif, system-ui, -apple-system';
+      ctx.fillText(ES_EUR.format(marginRaw), cx, cy+14);
+      ctx.textAlign='start';
+    }
+
+    function drawBars(canvas, byCat){
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0,0,W,H);
+      const entries = Object.entries(byCat);
+      if (entries.length === 0){
+        ctx.fillStyle='#94a3b8'; ctx.font='13px ui-sans-serif, system-ui'; ctx.fillText('Sin datos', 16, 24); return;
+      }
+      const vals = entries.map(([,v])=>v);
+      const max = Math.max(...vals) || 1;
+      const pad = 40, gap = 18;
+      const plotW = W - pad*2, plotH = H - pad*2;
+      const barW = Math.max(12, (plotW - gap*(entries.length-1)) / entries.length);
+
+      // Ejes
+      ctx.strokeStyle='#1f2a4a'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(pad, H-pad); ctx.lineTo(W-pad, H-pad); ctx.stroke();
+
+      // Barras
+      let x = pad;
+      for (const [k,v] of entries){
+        const h = (v/max) * (plotH*0.9);
+        const y = H - pad - h;
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillRect(x, y, barW, h);
+        // etiqueta
+        ctx.fillStyle = '#cbd5e1'; ctx.font='11px ui-sans-serif, system-ui'; ctx.textAlign='center';
+        ctx.fillText(k.length>12? (k.slice(0,11)+'…') : k, x+barW/2, H-pad+14);
+        ctx.fillStyle = '#94a3b8'; ctx.font='10px ui-sans-serif, system-ui';
+        ctx.fillText(ES_EUR.format(v), x+barW/2, y-6);
+        x += barW + gap;
+      }
+      ctx.textAlign='start';
+    }
+
+    // ===== CRUD partidas =====
+    function addItem(){
+      const it = { id: uid(), cat:'', desc:'', amount:0 };
+      state.items.push(it);
+      saveDebounced();
+      render();
+      openEdit(it.id);
+    }
+    function openEdit(id){
+      const it = state.items.find(i=>i.id===id); if (!it) return;
+      el.dlg.dataset.id = id;
+      el.dlgCat.value = it.cat || '';
+      el.dlgDesc.value = it.desc || '';
+      el.dlgAmt.value = String(it.amount ?? 0);
+      el.dlg.showModal();
+      setTimeout(()=>el.dlgCat.focus(), 50);
+    }
+    function persistDlg(){
+      const id = el.dlg.dataset.id;
+      const it = state.items.find(i=>i.id===id); if (!it) return;
+      it.cat = el.dlgCat.value.trim() || '';
+      it.desc = el.dlgDesc.value.trim() || '';
+      it.amount = Number(el.dlgAmt.value)||0;
+      el.dlg.close();
+      setSaving();
+      saveDebounced();
+      render();
+    }
+    function removeItem(id){
+      const i = state.items.findIndex(x=>x.id===id); if (i>=0){
+        state.items.splice(i,1);
+        saveDebounced();
+        render();
+      }
+    }
+
+    // ===== Import/Export =====
+    function isValidState(obj){
+      return obj && typeof obj === 'object'
+        && 'projectName' in obj
+        && Array.isArray(obj.items)
+        && typeof obj.base === 'number'
+        && typeof obj.targetMarginPct === 'number';
+    }
+
+    function exportJSON(){
+      const data = { ...state, version: state.version ?? 1 };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const safeName = (state.projectName || 'proyecto').replace(/\s+/g,'_');
+      a.download = `${safeName}_${nowISOCompact()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importJSON(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const incoming = JSON.parse(reader.result);
+          if (!isValidState(incoming)) throw new Error('schema');
+          state = { ...state, ...incoming };
+          state.version = incoming.version ?? 1;
+          saveDebounced();
+          render();
+        } catch {
+          alert('No se pudo importar: el JSON no tiene el formato esperado.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ===== Eventos =====
+    el.btnAdd.addEventListener('click', addItem);
+    el.dlgOk.addEventListener('click', persistDlg);
+    el.dlgDel.addEventListener('click', ()=>{
+      const id = el.dlg.dataset.id;
+      el.dlg.close();
+      removeItem(id);
+    });
+    el.dlgClose.addEventListener('click', ()=>el.dlg.close());
+
+    el.baseAmt.addEventListener('input', e=>{ state.base = Number(e.target.value)||0; saveDebounced(); render(); });
+    el.targetMargin.addEventListener('input', e=>{ state.targetMarginPct = Number(e.target.value)||0; saveDebounced(); render(); });
+
+    // Cambio de nombre — primero actualizar estado, luego guardar/cargar (evita guardar con nombre antiguo)
+    el.projectName.addEventListener('change', ()=>{
+      const newName = el.projectName.value?.trim() || 'Proyecto sin título';
+      const existed = !!localStorage.getItem(lsKey(newName));
+      if (existed && !confirm(`Ya existe un proyecto llamado "${newName}". ¿Sobrescribir?`)) {
+        el.projectName.value = state.projectName; // revertir
+        return;
+      }
+      state.projectName = newName;
+      saveToLocalStorage(); // ya guarda con el nombre correcto
+      loadFromLocalStorage(state.projectName); // si existía, carga
+      render();
+    });
+
+    el.btnExport.addEventListener('click', exportJSON);
+    el.fileImport.addEventListener('change', e=>{
+      const f = e.target.files?.[0];
+      if (f) importJSON(f);
+      e.target.value = '';
+    });
+
+    // ===== Bootstrap =====
+    (function init(){
+      // Si hay un último proyecto guardado, intenta cargarlo (heurística simple: el más reciente por nombre no es fiable; usamos nombre por defecto)
+      loadFromLocalStorage(state.projectName);
+      render();
+    })();
+  </script>
+</body>
+</html>
