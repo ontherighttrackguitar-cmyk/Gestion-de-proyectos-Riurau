@@ -1,563 +1,626 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Administrador de Proyectos — Standalone</title>
-  <style>
-    /* Minimal, Tailwind-like utility set (subset only) */
-    :root {
-      --bg: #f6f9f6;
-      --card: #ffffff;
-      --muted: #4d5e4d;
-      --text: #1a2b1a;
-      --primary: #2e7d32;
-      --accent: #4caf50;
-      --danger: #c62828;
-      --warn: #ef6c00;
-      --purple: #7c3aed;
-      --border: #c8e6c9;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#ffffff,#f6f7fb);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;min-height:100svh}
-    .container{max-width:1100px;margin:0 auto;padding:24px}
-    h1{font-size:28px;letter-spacing:.2px;margin:0 0 16px;font-weight:700}
-    h2{font-size:18px;margin:0 0 10px;color:#334155}
-    .card{background:var(--card);border:1px solid var(--border);backdrop-filter:blur(2px);border-radius:16px;padding:16px;box-shadow:0 6px 18px rgba(2,6,23,.08)}
-    .grid{display:grid;gap:16px}
-    .grid-3{grid-template-columns:repeat(3,1fr)}
-    .grid-2{grid-template-columns:repeat(2,1fr)}
-    @media (max-width:860px){.grid-3,.grid-2{grid-template-columns:1fr}}
-    input,select,button{border-radius:12px;border:1px solid var(--border);background:#ffffff;color:var(--text);padding:10px 12px;font-size:14px}
-    input:focus,select:focus,button:focus{outline:2px solid var(--primary);outline-offset:1px}
-    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .btn{cursor:pointer;border:1px solid var(--border);background:#ffffff}
-    .btn.primary{background:linear-gradient(90deg,#2563eb,#06b6d4);border:0;color:white}
-    .btn.danger{background:#fff5f5;border-color:#fecaca;color:#b91c1c}
-    .btn.ghost{background:transparent}
-    .tag{font-size:12px;color:var(--muted)}
-    table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px dashed var(--border);padding:10px;text-align:left}
-    th{font-weight:600;color:#cbd5e1}
-    tr:hover td{background:rgba(37,99,235,.06)}
-    .right{text-align:right}
-    .muted{color:var(--muted)}
-    .ok{color:var(--accent)}
-    .bad{color:var(--danger)}
-    .warn{color:var(--warn)}
-    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f8fafc;border:1px solid var(--border);padding:1px 6px;border-radius:6px;color:#334155}
-    .pill{padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:#f8fafc;font-size:12px;color:#334155}
-    .section-title{display:flex;align-items:center;gap:8px;margin:2px 0 12px}
-    .section-title .dot{width:8px;height:8px;border-radius:999px;background:var(--primary)}
-    .sticky{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.8));backdrop-filter:blur(6px);padding:10px;margin:-10px -10px 12px;border-bottom:1px solid var(--border);border-radius:16px 16px 0 0}
-    dialog{border:1px solid var(--border);background:#ffffff;border-radius:16px;padding:0;max-width:520px;width:95%}
-    dialog::backdrop{background:rgba(2,6,23,.25);backdrop-filter:blur(2px)}
-    .dlg-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-    .dlg-body{padding:16px}
-    .dlg-actions{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
-    .help{font-size:12px;color:#a3b2c7}
-    .spacer{height:6px}
-    .sep{height:1px;background:var(--border);margin:10px 0}
-    .caps{letter-spacing:.04em;text-transform:uppercase;font-size:11px;color:#9fb2d8}
-    .error{color:#fecaca}
-    .success{color:#bbf7d0}
-    .mini{font-size:12px}
-    .mb8{margin-bottom:8px}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presupuestador Standalone (Logo + Tema)</title>
+<style>
+  :root{
+    --bg:#0b0d10;
+    --panel:#141821;
+    --panel-2:#0f131a;
+    --text:#e7eef9;
+    --muted:#a9b5c7;
+    --primary:#4ea1ff;
+    --accent:#7bd88f;
+    --danger:#ff6363;
+    --border:#232a36;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .container{max-width:1200px;margin:0 auto;padding:24px}
+  header{display:flex;gap:16px;flex-wrap:wrap;align-items:end;justify-content:space-between;margin-bottom:16px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{height:48px;width:auto;border-radius:8px;border:1px solid var(--border);background:#fff;object-fit:contain}
+  h1{margin:0;font-size:24px}
+  p.lead{margin:0;color:var(--muted);font-size:14px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel-2);color:var(--text);cursor:pointer}
+  .btn:hover{border-color:#2f3746;transform:translateY(-1px)}
+  .btn.danger{background:#2a1416;border-color:#50252a;color:#ffd4d4}
+  .btn.secondary{background:#12161d}
+  .btn.icon{padding:8px 9px}
+  .row{display:grid;gap:12px}
+  @media(min-width:900px){.row-3{grid-template-columns:2fr 1fr 1fr}.row-2{grid-template-columns:1fr 1fr}.row-4{grid-template-columns:repeat(4,1fr)}}
+  .card{background:linear-gradient(180deg, var(--panel), var(--panel-2));border:1px solid var(--border);border-radius:16px;box-shadow:0 10px 20px rgba(0,0,0,.2)}
+  .card h2{margin:0 0 8px 0;font-size:16px}
+  .card .content{padding:16px}
+  .card .head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input, textarea, select{
+    width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+    background:var(--panel-2);color:var(--text);outline:none
+  }
+  input:focus, textarea:focus{border-color:#3a4456}
+  input[type="color"]{height:40px;padding:0;border-radius:8px}
+  table{width:100%;border-collapse:collapse}
+  th, td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:14px;vertical-align:top}
+  thead th{position:sticky;top:0;background:var(--panel);z-index:1}
+  .muted{color:var(--muted)}
+  .right{text-align:right}
+  .nowrap{white-space:nowrap}
+  .pill{display:inline-block;padding:2px 8px;border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--muted)}
+  .totals .rowline{display:flex;justify-content:space-between;margin:6px 0}
+  .totals .strong{font-weight:700}
+  .totals .big{font-size:18px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  .tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .tab{padding:10px 14px;border:1px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0;background:var(--panel-2);cursor:pointer}
+  .tab.active{background:var(--panel);color:#fff}
+  .hidden{display:none}
+  .table-scroll{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:12px}
+  footer{opacity:.8;text-align:center;margin-top:16px;font-size:12px;color:var(--muted)}
+  .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono"; background:#0a0d13;border:1px solid #1d2431;border-bottom-color:#131824;border-radius:6px;padding:0px 6px}
+  @media print{
+    .no-print{display:none !important}
+    body{background:white;color:black}
+    .card{background:white;border-color:#ddd;box-shadow:none}
+    thead th{background:white}
+    .pill{border-color:#aaa;color:#444}
+    .brand img{height:40px;border-color:#ccc}
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <header class="row" style="justify-content:space-between;align-items:center;margin-bottom:16px">
+<div class="container">
+  <header class="no-print">
+    <div class="brand">
+      <img id="brandLogo" alt="Logo" src="" onerror="this.style.display='none'">
       <div>
-        <h1>Administrador de Proyectos</h1>
-        <div class="muted mini">Standalone • sin dependencias externas</div>
-      </div>
-      <div class="row">
-        <button id="btnExport" class="btn">Guardar .json</button>
-        <label class="btn" for="fileImport" style="display:inline-block">Abrir .json</label>
-        <input id="fileImport" type="file" accept="application/json" aria-label="Importar proyecto (.json)" style="display:none" />
-        <span id="saveStatus" class="tag" aria-live="polite" style="margin-left:8px"></span>
-      </div>
-    </header>
-
-    <div class="grid grid-3">
-      <div class="card">
-        <div class="section-title"><span class="dot"></span><h2>Proyecto</h2></div>
-        <label for="projectName">Nombre del proyecto</label>
-        <input id="projectName" placeholder="Proyecto sin título" />
-        <div class="spacer"></div>
-        <div class="row">
-          <span class="pill">Guardado local</span>
-          <span class="tag">Claves por nombre</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-title"><span class="dot"></span><h2>Base y Margen Objetivo</h2></div>
-        <div class="grid grid-2">
-          <div>
-            <label for="baseAmt">Base (€)</label>
-            <input id="baseAmt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00" />
-          </div>
-          <div>
-            <label for="targetMargin">Margen objetivo (%)</label>
-            <input id="targetMargin" type="number" step="0.1" inputmode="decimal" placeholder="15" />
-          </div>
-        </div>
-        <div class="spacer"></div>
-        <div class="help">El margen calculado puede ser negativo si los costes superan la base.</div>
-      </div>
-
-      <div class="card">
-        <div class="section-title"><span class="dot"></span><h2>Resumen</h2></div>
-        <div class="row" style="justify-content:space-between">
-          <div>
-            <div class="caps">Costes</div>
-            <div id="totalCosts" class="mini muted">—</div>
-          </div>
-          <div>
-            <div class="caps">Margen calculado</div>
-            <div id="margenCalc" class="mini ok">—</div>
-          </div>
-          <div>
-            <div class="caps">Margen objetivo (€)</div>
-            <div id="margenTarget" class="mini muted">—</div>
-          </div>
-          <div>
-            <div class="caps">Saldo</div>
-            <div id="saldo" class="mini">—</div>
-          </div>
-        </div>
-        <div id="warnNeg" class="help error" style="display:none;margin-top:8px">⚠️ El proyecto va en negativo (margen &lt; 0). Revisa partidas o ajusta la base.</div>
+        <h1>Presupuestador</h1>
+        <p class="lead">Catálogo de partidas y presupuesto rápido con % beneficio, portes, descuento e IVA.</p>
       </div>
     </div>
-
-    <div class="card" style="margin-top:16px">
-      <div class="section-title sticky">
-        <span class="dot"></span><h2>Partidas</h2>
-        <div class="row" style="margin-left:auto">
-          <button id="btnAdd" class="btn primary" type="button" aria-label="Añadir partida">Añadir partida</button>
-        </div>
-      </div>
-      <div class="row muted mini" style="margin-bottom:8px"><span class="kbd">Tab</span> para moverte • <span class="kbd">Enter</span> para guardar • <span class="kbd">Del</span> para borrar</div>
-      <table id="tbl">
-        <thead>
-          <tr>
-            <th style="width:18%">Categoría</th>
-            <th>Descripción</th>
-            <th class="right" style="width:18%">Importe (€)</th>
-            <th style="width:120px">Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="4" class="muted mini">Las partidas se agrupan por categoría en el gráfico inferior.</td>
-          </tr>
-        </tfoot>
-      </table>
+    <div class="toolbar">
+      <button class="btn" id="btnPrint">🖨 Imprimir</button>
+      <button class="btn" id="btnDuplicate">🧬 Duplicar</button>
+      <button class="btn" id="btnExport">⬇️ Exportar</button>
+      <label class="btn" for="fileImport" style="gap:6px">⬆️ Importar<input id="fileImport" type="file" accept="application/json" style="display:none"></label>
+      <button class="btn danger" id="btnReset">🗑 Vaciar</button>
     </div>
+  </header>
 
-    <div class="grid grid-2" style="margin-top:16px">
-      <div class="card">
-        <div class="section-title"><span class="dot"></span><h2>Distribución</h2></div>
-        <canvas id="donut" width="520" height="320" aria-label="Doughnut de base, costes, desvío/margen"></canvas>
-      </div>
-      <div class="card">
-        <div class="section-title"><span class="dot"></span><h2>Costes por categoría</h2></div>
-        <canvas id="bars" width="520" height="320" aria-label="Barras por categoría"></canvas>
-      </div>
-    </div>
+  <div class="tabs no-print">
+    <div class="tab active" data-tab="presupuesto">Presupuesto</div>
+    <div class="tab" data-tab="catalogo">Catálogo</div>
+    <div class="tab" data-tab="ajustes">Ajustes</div>
+    <div class="pill">Logo y colores se guardan</div>
   </div>
 
-  <dialog id="dlg">
-    <div class="dlg-header">
-      <strong>Editar partida</strong>
-      <button class="btn ghost" id="dlgClose" type="button" aria-label="Cerrar">✕</button>
+  <!-- Presupuesto -->
+  <section id="presupuesto" class="tabpane">
+    <div class="row row-3">
+      <div class="card" style="grid-column: span 2">
+        <div class="head">
+          <h2>Presupuesto actual</h2>
+          <div class="muted" id="rowsCount"></div>
+        </div>
+        <div class="content">
+          <div class="row row-3">
+            <div>
+              <label>Título</label><input id="bdgTitle" placeholder="Reforma Vivienda — Cliente X">
+            </div>
+            <div>
+              <label>Fecha</label><input id="bdgDate" type="date">
+            </div>
+            <div>
+              <label>Capítulo</label><input id="bdgChapter" placeholder="General">
+            </div>
+          </div>
+
+          <div class="table-scroll" style="margin-top:12px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cap.</th>
+                  <th>Código</th>
+                  <th>Partida</th>
+                  <th>Ud</th>
+                  <th>Cant.</th>
+                  <th>P. unit.</th>
+                  <th class="right">Importe</th>
+                  <th class="no-print"></th>
+                </tr>
+              </thead>
+              <tbody id="tbodyBudget">
+                <tr><td colspan="8" class="muted" style="text-align:center;padding:20px">Añade partidas desde el catálogo</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row row-4" style="margin-top:12px">
+            <div>
+              <label>% Descuento</label><input id="pctDesc" type="number" step="0.01">
+            </div>
+            <div>
+              <label>% Beneficio</label><input id="pctBen" type="number" step="0.01">
+            </div>
+            <div>
+              <label>% Portes</label><input id="pctPort" type="number" step="0.01">
+            </div>
+            <div>
+              <label>% IVA</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="pctIva" type="number" step="0.01">
+                <label style="display:flex;align-items:center;gap:6px;user-select:none"><input type="checkbox" id="chkIva"> Aplicar</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row row-2" style="margin-top:12px">
+            <div class="card">
+              <div class="content totals" id="totalsBox"></div>
+            </div>
+            <div class="card">
+              <div class="content">
+                <label>Observaciones</label>
+                <textarea id="notes" rows="6" placeholder="Plazo de ejecución, condiciones, forma de pago, etc."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="head">
+          <h2>Catálogo</h2>
+          <div class="toolbar no-print">
+            <button class="btn" id="btnAddPart">➕ Nueva</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="row row-2">
+            <div>
+              <label>Buscar</label><input id="query" placeholder="Código, nombre, capítulo...">
+            </div>
+            <div>
+              <label>Filtrar por capítulo</label>
+              <select id="filterChapter"></select>
+            </div>
+          </div>
+
+          <div class="table-scroll" style="margin-top:12px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Capítulo</th>
+                  <th>Código</th>
+                  <th>Partida</th>
+                  <th>Ud</th>
+                  <th>P. unit.</th>
+                  <th class="right no-print">Añadir</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyCatalog"></tbody>
+            </table>
+          </div>
+          <div class="muted" id="chaptersInfo" style="margin-top:8px"></div>
+        </div>
+      </div>
     </div>
-    <form method="dialog">
-      <div class="dlg-body grid">
-        <div>
-          <label for="dlgCat">Categoría</label>
-          <input id="dlgCat" />
+  </section>
+
+  <!-- Catálogo Standalone -->
+  <section id="catalogo" class="tabpane hidden">
+    <div class="card">
+      <div class="head"><h2>Gestión del catálogo</h2><button class="btn no-print" id="btnAddPart2">➕ Añadir partida</button></div>
+      <div class="content">
+        <div class="row row-2">
+          <div><label>Buscar</label><input id="query2" placeholder="Código, nombre, capítulo..."></div>
+          <div><label>Capítulo</label><input id="chapterDefault" placeholder="General"></div>
         </div>
-        <div>
-          <label for="dlgDesc">Descripción</label>
-          <input id="dlgDesc" />
-        </div>
-        <div>
-          <label for="dlgAmt">Importe (€)</label>
-          <input id="dlgAmt" type="number" step="0.01" inputmode="decimal" />
+        <div class="table-scroll" style="margin-top:12px">
+          <table>
+            <thead>
+              <tr><th>Capítulo</th><th>Código</th><th>Nombre</th><th>Ud</th><th>P. unit.</th><th class="right no-print">Acciones</th></tr>
+            </thead>
+            <tbody id="tbodyCatalog2"></tbody>
+          </table>
         </div>
       </div>
-      <div class="dlg-actions">
-        <button id="dlgDel" type="button" class="btn danger" aria-label="Borrar partida">Borrar</button>
-        <button id="dlgOk" type="button" class="btn primary" aria-label="Guardar cambios">Guardar</button>
+    </div>
+  </section>
+
+  <!-- Ajustes -->
+  <section id="ajustes" class="tabpane hidden">
+    <div class="card">
+      <div class="head"><h2>Preferencias</h2></div>
+      <div class="content">
+        <div class="row row-3">
+          <div><label>Moneda</label><input id="currency"></div>
+          <div><label>Decimales</label><input id="decimals" type="number"></div>
+          <div><label>Capítulo por defecto</label><input id="chapterPref" placeholder="General"></div>
+        </div>
+
+        <div class="row row-3" style="margin-top:12px">
+          <div><label>Color de fondo (—bg)</label><input type="color" id="colorBg"></div>
+          <div><label>Panel principal (—panel)</label><input type="color" id="colorPanel"></div>
+          <div><label>Panel secundario (—panel-2)</label><input type="color" id="colorPanel2"></div>
+        </div>
+        <div class="row row-3" style="margin-top:12px">
+          <div><label>Texto (—text)</label><input type="color" id="colorText"></div>
+          <div><label>Primario (—primary)</label><input type="color" id="colorPrimary"></div>
+          <div><label>Borde (—border)</label><input type="color" id="colorBorder"></div>
+        </div>
+
+        <div class="row row-2" style="margin-top:12px">
+          <div>
+            <label>Logo (URL)</label>
+            <input id="logoUrl" placeholder="https://.../logo.png">
+          </div>
+          <div>
+            <label>Datos de la empresa (opcional)</label>
+            <textarea id="firm" rows="6" placeholder="Nombre fiscal, CIF, dirección"></textarea>
+          </div>
+        </div>
       </div>
-    </form>
-  </dialog>
+    </div>
+  </section>
 
-  <script>
-    // ===== Utilidades =====
+  <footer class="no-print">Consejo: ajusta los colores en Ajustes → Preferencias. El logo se muestra arriba y en impresión.</footer>
 
-    function nowISOCompact(){
-      const d = new Date();
-      const pad = n => String(n).padStart(2,'0');
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
-    }
-    const saveStatusEl = document.getElementById('saveStatus');
-    let savingTicker;
+</div>
 
-    function setSaving(){
-      if (!saveStatusEl) return;
-      saveStatusEl.textContent = 'Guardando…';
-      clearTimeout(savingTicker);
-    }
-    function setSaved(){
-      if (!saveStatusEl) return;
-      const d = new Date();
-      const hh = String(d.getHours()).padStart(2,'0');
-      const mm = String(d.getMinutes()).padStart(2,'0');
-      saveStatusEl.textContent = `Guardado ${hh}:${mm}`;
-    }
+<script>
+(function(){
+  const LS = {
+    CATALOG: "presu.catalog.v1",
+    BUDGET: "presu.budget.v1",
+    SETTINGS: "presu.settings.v1",
+    THEME: "presu.theme.v1"
+  };
 
-    const ES_EUR = new Intl.NumberFormat('es-ES', { style:'currency', currency:'EUR' });
-    const Q = s => document.querySelector(s);
-    const CE = (tag, cls) => { const el = document.createElement(tag); if (cls) el.className = cls; return el; };
+  const uid = () => Math.random().toString(36).slice(2,10);
+  const today = () => new Date().toISOString().slice(0,10);
+  const parseNum = (v) => { const x = parseFloat(String(v).replace(',', '.')); return isFinite(x) ? x : 0; };
+  const fmt = (n, c, d) => (new Intl.NumberFormat(undefined,{minimumFractionDigits:d, maximumFractionDigits:d})).format(+n||0) + ' ' + c;
 
-    function escapeHtml(str) {
-      return String(str ?? '').replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-      }[m]));
-    }
+  const defaultSettings = { currency:'€', showIva:true, ivaPct:21, benefitPct:10, shippingPct:0, descuentoPct:0, redondeo:2, firm:'', logoUrl:'' };
+  const defaultTheme = {
+    bg:'#0b0d10', panel:'#141821', panel2:'#0f131a', text:'#e7eef9',
+    primary:'#4ea1ff', accent:'#7bd88f', danger:'#ff6363', border:'#232a36'
+  };
+  const sampleCatalog = () => [
+    { id: uid(), chapter:'Demoliciones', code:'DEM-001', name:'Demolición de tabique de ladrillo hueco', unit:'m²', price:18.5, notes:'Incluye gestión de escombros'},
+    { id: uid(), chapter:'Albañilería', code:'ALB-010', name:'Tabique de ladrillo cerámico 7cm + enlucido', unit:'m²', price:34.2, notes:'Suministro y colocación'},
+    { id: uid(), chapter:'Carpintería', code:'CAR-120', name:'Puerta maciza en DM lacado, herrajes incluidos', unit:'ud', price:185.0, notes:'Altura estándar'},
+    { id: uid(), chapter:'Instalaciones', code:'ELE-050', name:'Punto de luz y mecanismo empotrado', unit:'ud', price:42.0, notes:'Canalización y cableado'},
+    { id: uid(), chapter:'Pintura', code:'PIN-030', name:'Pintura plástica mate lavable, 2 manos', unit:'m²', price:6.8, notes:'Color a elegir'},
+  ];
+  const emptyBudget = () => ({ id:uid(), title:'Nuevo presupuesto', date:today(), chapter:'General', items:[], notes:'', client:'', firm:'' });
 
-    function uid(){ return Math.random().toString(36).slice(2,10); }
-    function lsKey(name){ return 'proj:' + (name || 'Proyecto sin título'); }
+  let catalog = JSON.parse(localStorage.getItem(LS.CATALOG) || 'null') || sampleCatalog();
+  let budget  = JSON.parse(localStorage.getItem(LS.BUDGET)  || 'null') || emptyBudget();
+  let settings= { ...defaultSettings, ...(JSON.parse(localStorage.getItem(LS.SETTINGS) || 'null')||{}) };
+  let theme   = { ...defaultTheme, ...(JSON.parse(localStorage.getItem(LS.THEME) || 'null')||{}) };
+  let q1='', q2='', filterChapter = '';
 
-    // Debounce para persistencia
-    const saveDebounced = (() => {
-      let t; 
-      return () => { clearTimeout(t); t = setTimeout(saveToLocalStorage, 300); };
-    })();
+  const el = (id) => document.getElementById(id);
+  const setThemeVars = ()=>{
+    const r = document.documentElement;
+    r.style.setProperty('--bg', theme.bg);
+    r.style.setProperty('--panel', theme.panel);
+    r.style.setProperty('--panel-2', theme.panel2);
+    r.style.setProperty('--text', theme.text);
+    r.style.setProperty('--primary', theme.primary);
+    r.style.setProperty('--border', theme.border);
+  };
+  setThemeVars();
 
-    // ===== Estado =====
-    let state = {
-      version: 1,
-      projectName: 'Proyecto sin título',
-      base: 0,
-      targetMarginPct: 15,
-      items: [] // {id, cat, desc, amount}
+  // Tabs
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.querySelectorAll('.tabpane').forEach(p=>p.classList.add('hidden'));
+      el(t.dataset.tab).classList.remove('hidden');
+    });
+  });
+
+  // Header buttons
+  el('btnPrint').onclick = ()=> window.print();
+  el('btnDuplicate').onclick = ()=> { budget = { ...budget, id:uid(), title: budget.title + ' (copia)', date: today() }; saveAll(); renderAll(); };
+  el('btnExport').onclick = ()=> {
+    const payload = { catalog, budget, settings, theme, version:2 };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'presupuesto_'+ new Date().toISOString().slice(0,19) + '.json';
+    a.click(); URL.revokeObjectURL(url);
+  };
+  el('fileImport').onchange = (ev)=>{
+    const file = ev.target.files?.[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        if(data.catalog && data.budget && data.settings){
+          catalog = data.catalog; budget = data.budget; settings = { ...settings, ...data.settings };
+          if(data.theme) theme = { ...theme, ...data.theme };
+          saveAll(); renderAll();
+        } else alert('Archivo no reconocido');
+      }catch{ alert('No se pudo leer el JSON'); }
     };
+    reader.readAsText(file);
+  };
+  el('btnReset').onclick = ()=>{
+    if(!confirm('¿Vaciar el presupuesto actual?')) return;
+    budget = emptyBudget(); saveBudget(); renderBudget(); renderTotals();
+  };
 
-    // ===== Elementos =====
-    const el = {
-      projectName: Q('#projectName'),
-      baseAmt: Q('#baseAmt'),
-      targetMargin: Q('#targetMargin'),
-      totalCosts: Q('#totalCosts'),
-      margenCalc: Q('#margenCalc'),
-      margenTarget: Q('#margenTarget'),
-      saldo: Q('#saldo'),
-      warnNeg: Q('#warnNeg'),
-      tbody: Q('#tbody'),
-      donut: Q('#donut'),
-      bars: Q('#bars'),
-      dlg: Q('#dlg'),
-      dlgCat: Q('#dlgCat'),
-      dlgDesc: Q('#dlgDesc'),
-      dlgAmt: Q('#dlgAmt'),
-      dlgOk: Q('#dlgOk'),
-      dlgDel: Q('#dlgDel'),
-      dlgClose: Q('#dlgClose'),
-      btnAdd: Q('#btnAdd'),
-      btnExport: Q('#btnExport'),
-      fileImport: Q('#fileImport'),
-    };
+  // Inputs Presupuesto
+  el('bdgTitle').oninput = (e)=>{ budget.title = e.target.value; saveBudget(); };
+  el('bdgDate').oninput  = (e)=>{ budget.date  = e.target.value; saveBudget(); };
+  el('bdgChapter').oninput=(e)=>{ budget.chapter = e.target.value; saveBudget(); renderCatalog(); };
 
-    // ===== Persistencia =====
-    function saveToLocalStorage(){
-      setSaving();
-      localStorage.setItem(lsKey(state.projectName), JSON.stringify(state));
-      setSaved();
-    }
-    function loadFromLocalStorage(name){
-      const raw = localStorage.getItem(lsKey(name));
-      if (!raw) return false;
-      try { state = JSON.parse(raw); return true; } catch { return false; }
-    }
+  // Percentages
+  el('pctDesc').oninput = (e)=>{ settings.descuentoPct = parseNum(e.target.value); saveSettings(); renderTotals(); };
+  el('pctBen').oninput  = (e)=>{ settings.benefitPct   = parseNum(e.target.value); saveSettings(); renderTotals(); };
+  el('pctPort').oninput = (e)=>{ settings.shippingPct  = parseNum(e.target.value); saveSettings(); renderTotals(); };
+  el('pctIva').oninput  = (e)=>{ settings.ivaPct       = parseNum(e.target.value); saveSettings(); renderTotals(); };
+  el('chkIva').onchange = (e)=>{ settings.showIva      = e.target.checked; saveSettings(); renderTotals(); };
+  el('notes').oninput   = (e)=>{ budget.notes          = e.target.value; saveBudget(); };
 
-    // ===== Cálculos =====
-    function computeTotals(){
-      const byCat = {};
-      let totalCosts = 0;
-      for (const it of state.items){
-        const a = Number(it.amount)||0;
-        totalCosts += a;
-        const k = it.cat || 'Sin categoría';
-        byCat[k] = (byCat[k]||0) + a;
-      }
-      const marginRaw = state.base - totalCosts;
-      const targetMarginAmt = state.base * (Number(state.targetMarginPct)||0) / 100;
-      const saldo = marginRaw - targetMarginAmt;
-      return { byCat, totalCosts, marginRaw, targetMarginAmt, saldo };
-    }
+  // Catalog filters
+  el('query').oninput = (e)=>{ q1 = e.target.value.toLowerCase(); renderCatalog(); };
+  el('query2').oninput= (e)=>{ q2 = e.target.value.toLowerCase(); renderCatalog2(); };
+  el('filterChapter').onchange = (e)=>{ filterChapter = e.target.value; renderCatalog(); };
 
-    // ===== Render =====
-    function render(){
-      // Inputs
-      el.projectName.value = state.projectName;
-      el.baseAmt.value = String(state.base);
-      el.targetMargin.value = String(state.targetMarginPct);
+  // Catalog add buttons
+  el('btnAddPart').onclick = addPart;
+  el('btnAddPart2').onclick = addPart;
 
-      const { byCat, totalCosts, marginRaw, targetMarginAmt, saldo } = computeTotals();
+  // Ajustes
+  el('currency').oninput = (e)=>{ settings.currency = e.target.value; saveSettings(); renderTotals(); renderCatalog(); renderBudget(); };
+  el('decimals').oninput = (e)=>{ settings.redondeo = parseInt(e.target.value||'0',10)||0; saveSettings(); renderTotals(); renderBudget(); };
+  el('chapterPref').oninput=(e)=>{ budget.chapter = e.target.value; saveBudget(); renderCatalog(); };
+  el('firm').oninput = (e)=>{ settings.firm = e.target.value; saveSettings(); };
+  el('logoUrl').oninput = (e)=>{ settings.logoUrl = e.target.value.trim(); saveSettings(); renderLogo(); };
 
-      // Resumen
-      el.totalCosts.textContent = ES_EUR.format(totalCosts);
-      el.margenCalc.textContent = ES_EUR.format(marginRaw);
-      el.margenCalc.classList.toggle('ok', marginRaw >= 0);
-      el.margenCalc.classList.toggle('bad', marginRaw < 0);
-      el.margenTarget.textContent = ES_EUR.format(targetMarginAmt);
-      el.saldo.textContent = ES_EUR.format(saldo);
-      el.saldo.classList.toggle('ok', saldo >= 0);
-      el.saldo.classList.toggle('bad', saldo < 0);
-      el.warnNeg.style.display = marginRaw < 0 ? 'block' : 'none';
+  // Theme inputs
+  const themeBindings = [
+    ['colorBg','bg'], ['colorPanel','panel'], ['colorPanel2','panel2'],
+    ['colorText','text'], ['colorPrimary','primary'], ['colorBorder','border']
+  ];
+  themeBindings.forEach(([id,key])=>{
+    el(id).oninput = (e)=>{ theme[key] = e.target.value; saveTheme(); setThemeVars(); };
+  });
 
-      // Tabla
-      el.tbody.innerHTML = '';
-      for (const it of state.items){
-        const tr = CE('tr');
-        const tdCat = CE('td'); tdCat.textContent = it.cat || '—';
-        const tdDesc = CE('td'); tdDesc.innerHTML = it.desc ? escapeHtml(it.desc) : '<span class="muted">—</span>';
-        const tdAmt = CE('td', 'right'); tdAmt.textContent = ES_EUR.format(Number(it.amount)||0);
-        const tdAct = CE('td');
-        const btnE = CE('button','btn mini'); btnE.type='button'; btnE.textContent='Editar'; btnE.setAttribute('aria-label','Editar partida'); btnE.onclick=()=>openEdit(it.id);
-        const btnX = CE('button','btn danger mini'); btnX.type='button'; btnX.textContent='Borrar'; btnX.setAttribute('aria-label','Borrar partida'); btnX.onclick=()=>removeItem(it.id);
-        tdAct.append(btnE,' ',btnX);
-        tr.append(tdCat, tdDesc, tdAmt, tdAct);
-        el.tbody.append(tr);
-      }
+  // Keyboard save
+  document.addEventListener('keydown', (e)=>{
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); saveAll(); }
+  });
 
-      // Gráficos
-      drawDonut(el.donut, totalCosts, marginRaw);
-      drawBars(el.bars, byCat);
-    }
+  function saveCatalog(){ localStorage.setItem(LS.CATALOG, JSON.stringify(catalog)); }
+  function saveBudget(){ localStorage.setItem(LS.BUDGET, JSON.stringify(budget)); }
+  function saveSettings(){ localStorage.setItem(LS.SETTINGS, JSON.stringify(settings)); }
+  function saveTheme(){ localStorage.setItem(LS.THEME, JSON.stringify(theme)); }
+  function saveAll(){ saveCatalog(); saveBudget(); saveSettings(); saveTheme(); }
 
-    // ===== Gráficos (canvas puros, sin librerías) =====
-    function drawDonut(canvas, totalCosts, marginRaw){
-      const ctx = canvas.getContext('2d');
-      const W = canvas.width, H = canvas.height;
-      ctx.clearRect(0,0,W,H);
+  function addPart(){
+    const p = { id:uid(), chapter: budget.chapter || 'General', code:'', name:'Nueva partida', unit:'ud', price:0, notes:'' };
+    catalog = [p, ...catalog]; saveCatalog(); renderCatalog(); renderCatalog2();
+  }
 
-      // Datos: Base, Costes, Desvío (si <0), Margen (si >0)
-      const overrun = marginRaw < 0 ? Math.abs(marginRaw) : 0;
-      const marginPos = marginRaw > 0 ? marginRaw : 0;
-      const parts = [
-        { label:'Base', value: state.base, color:'#0EA5E9' },
-        { label:'Costes', value: totalCosts, color:'#EF4444' },
-      ];
-      if (overrun) parts.push({ label:'Desvío', value: overrun, color:'#8B5CF6' });
-      if (marginPos) parts.push({ label:'Margen', value: marginPos, color:'#22C55E' });
+  function removePart(id){
+    if(!confirm('¿Eliminar esta partida del catálogo?')) return;
+    catalog = catalog.filter(x=>x.id!==id); saveCatalog(); renderCatalog(); renderCatalog2();
+  }
 
-      const sum = parts.reduce((a,b)=>a+b.value,0) || 1;
-      const cx = W/2, cy = H/2, r = Math.min(W,H)*0.36, cut = r*0.55;
+  function addToBudget(partId){
+    const exists = budget.items.find(i=>i.partId===partId);
+    if(exists){ exists.qty += 1; }
+    else { budget.items.push({ id:uid(), partId, qty:1, overridePrice:null, notes:'' }); }
+    saveBudget(); renderBudget(); renderTotals();
+  }
 
-      let start = -Math.PI/2;
-      for (const p of parts){
-        const ang = (p.value/sum) * Math.PI*2;
-        ctx.beginPath();
-        ctx.moveTo(cx,cy);
-        ctx.fillStyle = p.color;
-        ctx.arc(cx,cy,r,start,start+ang);
-        ctx.closePath();
-        ctx.fill();
-        start += ang;
-      }
-      // Agujero
-      ctx.globalCompositeOperation='destination-out';
-      ctx.beginPath();
-      ctx.arc(cx,cy,cut,0,Math.PI*2);
-      ctx.fill();
-      ctx.globalCompositeOperation='source-over';
+  function removeBudgetItem(itemId){
+    budget.items = budget.items.filter(i=>i.id!==itemId);
+    saveBudget(); renderBudget(); renderTotals();
+  }
 
-      // Leyenda
-      const left = 24, top = 16;
-      let y = top;
-      ctx.font = '12px ui-sans-serif, system-ui, -apple-system';
-      ctx.fillStyle = '#cbd5e1';
-      ctx.fillText('Leyenda', left, y); y+=16;
-      for (const p of parts){
-        ctx.fillStyle = p.color;
-        ctx.fillRect(left, y-10, 10, 10);
-        ctx.fillStyle = '#cbd5e1';
-        ctx.fillText(`${p.label}: ${ES_EUR.format(p.value)}`, left+16, y);
-        y+=16;
-      }
+  function chapterList(){
+    const set = new Set(catalog.map(p=>p.chapter).filter(Boolean));
+    return ['(todos)', ...Array.from(set).sort()];
+  }
 
-      // Centro
-      ctx.fillStyle = '#94a3b8';
-      ctx.textAlign='center';
-      ctx.font='11px ui-sans-serif, system-ui, -apple-system';
-      ctx.fillText('Margen calc.', cx, cy-6);
-      ctx.fillStyle = marginRaw >= 0 ? '#22C55E' : '#EF4444';
-      ctx.font='bold 16px ui-sans-serif, system-ui, -apple-system';
-      ctx.fillText(ES_EUR.format(marginRaw), cx, cy+14);
-      ctx.textAlign='start';
-    }
-
-    function drawBars(canvas, byCat){
-      const ctx = canvas.getContext('2d');
-      const W = canvas.width, H = canvas.height;
-      ctx.clearRect(0,0,W,H);
-      const entries = Object.entries(byCat);
-      if (entries.length === 0){
-        ctx.fillStyle='#94a3b8'; ctx.font='13px ui-sans-serif, system-ui'; ctx.fillText('Sin datos', 16, 24); return;
-      }
-      const vals = entries.map(([,v])=>v);
-      const max = Math.max(...vals) || 1;
-      const pad = 40, gap = 18;
-      const plotW = W - pad*2, plotH = H - pad*2;
-      const barW = Math.max(12, (plotW - gap*(entries.length-1)) / entries.length);
-
-      // Ejes
-      ctx.strokeStyle='#1f2a4a'; ctx.lineWidth=1;
-      ctx.beginPath(); ctx.moveTo(pad, H-pad); ctx.lineTo(W-pad, H-pad); ctx.stroke();
-
-      // Barras
-      let x = pad;
-      for (const [k,v] of entries){
-        const h = (v/max) * (plotH*0.9);
-        const y = H - pad - h;
-        ctx.fillStyle = '#3b82f6';
-        ctx.fillRect(x, y, barW, h);
-        // etiqueta
-        ctx.fillStyle = '#cbd5e1'; ctx.font='11px ui-sans-serif, system-ui'; ctx.textAlign='center';
-        ctx.fillText(k.length>12? (k.slice(0,11)+'…') : k, x+barW/2, H-pad+14);
-        ctx.fillStyle = '#94a3b8'; ctx.font='10px ui-sans-serif, system-ui';
-        ctx.fillText(ES_EUR.format(v), x+barW/2, y-6);
-        x += barW + gap;
-      }
-      ctx.textAlign='start';
-    }
-
-    // ===== CRUD partidas =====
-    function addItem(){
-      const it = { id: uid(), cat:'', desc:'', amount:0 };
-      state.items.push(it);
-      saveDebounced();
-      render();
-      openEdit(it.id);
-    }
-    function openEdit(id){
-      const it = state.items.find(i=>i.id===id); if (!it) return;
-      el.dlg.dataset.id = id;
-      el.dlgCat.value = it.cat || '';
-      el.dlgDesc.value = it.desc || '';
-      el.dlgAmt.value = String(it.amount ?? 0);
-      el.dlg.showModal();
-      setTimeout(()=>el.dlgCat.focus(), 50);
-    }
-    function persistDlg(){
-      const id = el.dlg.dataset.id;
-      const it = state.items.find(i=>i.id===id); if (!it) return;
-      it.cat = el.dlgCat.value.trim() || '';
-      it.desc = el.dlgDesc.value.trim() || '';
-      it.amount = Number(el.dlgAmt.value)||0;
-      el.dlg.close();
-      setSaving();
-      saveDebounced();
-      render();
-    }
-    function removeItem(id){
-      const i = state.items.findIndex(x=>x.id===id); if (i>=0){
-        state.items.splice(i,1);
-        saveDebounced();
-        render();
-      }
-    }
-
-    // ===== Import/Export =====
-    function isValidState(obj){
-      return obj && typeof obj === 'object'
-        && 'projectName' in obj
-        && Array.isArray(obj.items)
-        && typeof obj.base === 'number'
-        && typeof obj.targetMarginPct === 'number';
-    }
-
-    function exportJSON(){
-      const data = { ...state, version: state.version ?? 1 };
-      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      const safeName = (state.projectName || 'proyecto').replace(/\s+/g,'_');
-      a.download = `${safeName}_${nowISOCompact()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }
-
-    function importJSON(file){
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const incoming = JSON.parse(reader.result);
-          if (!isValidState(incoming)) throw new Error('schema');
-          state = { ...state, ...incoming };
-          state.version = incoming.version ?? 1;
-          saveDebounced();
-          render();
-        } catch {
-          alert('No se pudo importar: el JSON no tiene el formato esperado.');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    // ===== Eventos =====
-    el.btnAdd.addEventListener('click', addItem);
-    el.dlgOk.addEventListener('click', persistDlg);
-    el.dlgDel.addEventListener('click', ()=>{
-      const id = el.dlg.dataset.id;
-      el.dlg.close();
-      removeItem(id);
+  function filtered(cat, query, chapter){
+    const q = (query||'').trim().toLowerCase();
+    return cat.filter(p=>{
+      const hay = [p.code, p.name, p.unit, p.notes||'', p.chapter||''].join(' ').toLowerCase();
+      const matchText = !q || hay.includes(q);
+      const matchChapter = !chapter || chapter==='(todos)' || p.chapter===chapter;
+      return matchText && matchChapter;
     });
-    el.dlgClose.addEventListener('click', ()=>el.dlg.close());
+  }
 
-    el.baseAmt.addEventListener('input', e=>{ state.base = Number(e.target.value)||0; saveDebounced(); render(); });
-    el.targetMargin.addEventListener('input', e=>{ state.targetMarginPct = Number(e.target.value)||0; saveDebounced(); render(); });
+  function currentRows(){
+    return budget.items.map(it=>({ ...it, part: catalog.find(p=>p.id===it.partId) })).filter(r=>r.part);
+  }
 
-    // Cambio de nombre — primero actualizar estado, luego guardar/cargar (evita guardar con nombre antiguo)
-    el.projectName.addEventListener('change', ()=>{
-      const newName = el.projectName.value?.trim() || 'Proyecto sin título';
-      const existed = !!localStorage.getItem(lsKey(newName));
-      if (existed && !confirm(`Ya existe un proyecto llamado "${newName}". ¿Sobrescribir?`)) {
-        el.projectName.value = state.projectName; // revertir
-        return;
-      }
-      state.projectName = newName;
-      saveToLocalStorage(); // ya guarda con el nombre correcto
-      loadFromLocalStorage(state.projectName); // si existía, carga
-      render();
+  function totals(){
+    const rows = currentRows();
+    const subtotal = rows.reduce((s,r)=> s + r.qty * (r.overridePrice==null ? r.part.price : r.overridePrice), 0);
+    const descuento = subtotal * (settings.descuentoPct||0) / 100;
+    const baseTrasDto = subtotal - descuento;
+    const beneficio = baseTrasDto * (settings.benefitPct||0) / 100;
+    const portes    = baseTrasDto * (settings.shippingPct||0) / 100;
+    const baseImp   = baseTrasDto + beneficio + portes;
+    const iva       = settings.showIva ? baseImp * (settings.ivaPct||0) / 100 : 0;
+    const total     = baseImp + iva;
+    return { subtotal, descuento, baseTrasDto, beneficio, portes, baseImp, iva, total };
+  }
+
+  function renderBudget(){
+    el('bdgTitle').value = budget.title||'';
+    el('bdgDate').value  = budget.date||today();
+    el('bdgChapter').value = budget.chapter||'General';
+    el('notes').value = budget.notes||'';
+
+    const tbody = el('tbodyBudget'); tbody.innerHTML = '';
+    const rows = currentRows();
+    el('rowsCount').textContent = rows.length ? rows.length+' partidas' : 'Sin partidas';
+    if(rows.length===0){
+      const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan=8;
+      td.className='muted'; td.style.textAlign='center'; td.style.padding='20px'; td.textContent='Añade partidas desde el catálogo';
+      tr.appendChild(td); tbody.appendChild(tr);
+    } else {
+      rows.forEach(row=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.part.chapter||''}</td>
+          <td>${row.part.code||''}</td>
+          <td>${row.part.name||''}</td>
+          <td>${row.part.unit||''}</td>
+          <td class="nowrap"><input type="number" step="0.01" value="${row.qty}" style="width:90px"></td>
+          <td class="nowrap"><input type="number" step="0.01" value="${row.overridePrice==null? row.part.price : row.overridePrice}" style="width:120px"></td>
+          <td class="right strong"></td>
+          <td class="right no-print"><button class="btn icon">🗑</button></td>
+        `;
+        const [qtyInput, priceInput] = [tr.querySelectorAll('input')[0], tr.querySelectorAll('input')[1]];
+        const totalCell = tr.children[6];
+        const updateRowTotal = ()=> totalCell.textContent = fmt(row.qty * (row.overridePrice==null? row.part.price : row.overridePrice), settings.currency, settings.redondeo);
+        updateRowTotal();
+        qtyInput.oninput = (e)=>{ row.qty = parseNum(e.target.value); const it = budget.items.find(i=>i.id===row.id); if(it){it.qty=row.qty;} saveBudget(); renderTotals(); updateRowTotal(); };
+        priceInput.oninput = (e)=>{ row.overridePrice = parseNum(e.target.value); const it = budget.items.find(i=>i.id===row.id); if(it){it.overridePrice=row.overridePrice;} saveBudget(); renderTotals(); updateRowTotal(); };
+        tr.querySelector('button').onclick = ()=> removeBudgetItem(row.id);
+        tbody.appendChild(tr);
+      });
+    }
+  }
+
+  function renderCatalog(){
+    const sel = el('filterChapter'); sel.innerHTML = '';
+    chapterList().forEach(ch=>{
+      const o = document.createElement('option'); o.value = ch; o.textContent = ch; sel.appendChild(o);
+    });
+    if(!filterChapter) filterChapter = '(todos)';
+    sel.value = filterChapter;
+
+    const tbody = el('tbodyCatalog'); tbody.innerHTML='';
+    const list = filtered(catalog, q1, filterChapter);
+    list.forEach(p=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="editable" contenteditable="true" data-field="chapter">${p.chapter||''}</span></td>
+        <td><span class="editable" contenteditable="true" data-field="code">${p.code||''}</span></td>
+        <td>
+          <div><span class="editable" contenteditable="true" data-field="name">${p.name||''}</span></div>
+          <div class="muted" style="font-size:12px"><span class="editable" contenteditable="true" data-field="notes">${p.notes||''}</span></div>
+        </td>
+        <td><span class="editable" contenteditable="true" data-field="unit">${p.unit||''}</span></td>
+        <td><input type="number" step="0.01" value="${p.price}" style="width:120px"></td>
+        <td class="right no-print">
+          <button class="btn">➕ Añadir</button>
+          <button class="btn icon">🗑</button>
+        </td>
+      `;
+      tr.querySelectorAll('.editable').forEach(span=>{
+        span.addEventListener('blur', ()=>{
+          const field = span.dataset.field; p[field] = span.textContent.trim(); saveCatalog(); renderCatalog(); renderCatalog2();
+        });
+      });
+      tr.querySelector('input').oninput = (e)=>{ p.price = parseNum(e.target.value); saveCatalog(); };
+      const [btnAdd, btnDel] = tr.querySelectorAll('button');
+      btnAdd.onclick = ()=> addToBudget(p.id);
+      btnDel.onclick = ()=> removePart(p.id);
+      tbody.appendChild(tr);
     });
 
-    el.btnExport.addEventListener('click', exportJSON);
-    el.fileImport.addEventListener('change', e=>{
-      const f = e.target.files?.[0];
-      if (f) importJSON(f);
-      e.target.value = '';
-    });
+    el('chaptersInfo').textContent = 'Capítulos disponibles: ' + (Array.from(new Set(catalog.map(x=>x.chapter))).sort().join(', ') || '(ninguno)');
+  }
 
-    // ===== Bootstrap =====
-    (function init(){
-      // Si hay un último proyecto guardado, intenta cargarlo (heurística simple: el más reciente por nombre no es fiable; usamos nombre por defecto)
-      loadFromLocalStorage(state.projectName);
-      render();
-    })();
-  </script>
+  function renderCatalog2(){
+    el('chapterDefault').value = budget.chapter||'General';
+    const tbody = el('tbodyCatalog2'); tbody.innerHTML='';
+    const list = filtered(catalog, q2, '');
+    list.forEach(p=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="editable" contenteditable="true" data-field="chapter">${p.chapter||''}</span></td>
+        <td><span class="editable" contenteditable="true" data-field="code">${p.code||''}</span></td>
+        <td><span class="editable" contenteditable="true" data-field="name">${p.name||''}</span></td>
+        <td><span class="editable" contenteditable="true" data-field="unit">${p.unit||''}</span></td>
+        <td><input type="number" step="0.01" value="${p.price}" style="width:120px"></td>
+        <td class="right no-print"><button class="btn icon">🗑</button></td>
+      `;
+      tr.querySelectorAll('.editable').forEach(span=>{
+        span.addEventListener('blur', ()=>{ const f=span.dataset.field; p[f]=span.textContent.trim(); saveCatalog(); renderCatalog(); renderCatalog2(); });
+      });
+      tr.querySelector('input').oninput = (e)=>{ p.price = parseNum(e.target.value); saveCatalog(); };
+      tr.querySelector('button').onclick = ()=> removePart(p.id);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderTotals(){
+    const {subtotal, descuento, baseTrasDto, beneficio, portes, baseImp, iva, total} = totals();
+    const c = settings.currency, d = settings.redondeo;
+    const box = el('totalsBox');
+    box.innerHTML = `
+      <div class="rowline"><div class="muted">Subtotal</div><div>${fmt(subtotal,c,d)}</div></div>
+      <div class="rowline"><div class="muted">Descuento (${settings.descuentoPct||0}%)</div><div>-${fmt(descuento,c,d)}</div></div>
+      <div class="rowline"><div class="muted">Beneficio (${settings.benefitPct||0}%)</div><div>${fmt(beneficio,c,d)}</div></div>
+      <div class="rowline"><div class="muted">Portes (${settings.shippingPct||0}%)</div><div>${fmt(portes,c,d)}</div></div>
+      <hr style="border:none;border-top:1px solid var(--border)">
+      <div class="rowline strong"><div>Base imponible</div><div>${fmt(baseImp,c,d)}</div></div>
+      ${ settings.showIva ? `<div class="rowline"><div class="muted">IVA (${settings.ivaPct||0}%)</div><div>${fmt(iva,c,d)}</div></div>` : '' }
+      <hr style="border:none;border-top:1px solid var(--border)">
+      <div class="rowline strong big"><div>TOTAL</div><div>${fmt(total,c,d)}</div></div>
+    `;
+  }
+
+  function renderAjustes(){
+    el('currency').value = settings.currency||'€';
+    el('decimals').value = settings.redondeo||2;
+    el('chapterPref').value = budget.chapter||'General';
+    el('firm').value = settings.firm||'';
+    el('logoUrl').value = settings.logoUrl||'';
+    el('colorBg').value = theme.bg;
+    el('colorPanel').value = theme.panel;
+    el('colorPanel2').value = theme.panel2;
+    el('colorText').value = theme.text;
+    el('colorPrimary').value = theme.primary;
+    el('colorBorder').value = theme.border;
+    renderLogo();
+  }
+
+  function renderLogo(){
+    const img = document.getElementById('brandLogo');
+    if(settings.logoUrl && settings.logoUrl.trim()){
+      img.src = settings.logoUrl.trim();
+      img.style.display = 'block';
+    } else {
+      img.removeAttribute('src');
+      img.style.display = 'none';
+    }
+  }
+
+  function renderAll(){
+    renderBudget(); renderCatalog(); renderCatalog2(); renderTotals(); renderAjustes();
+    el('pctDesc').value = settings.descuentoPct||0;
+    el('pctBen').value = settings.benefitPct||0;
+    el('pctPort').value = settings.shippingPct||0;
+    el('pctIva').value = settings.ivaPct||21;
+    el('chkIva').checked = !!settings.showIva;
+  }
+
+  renderAll();
+})();
+</script>
 </body>
 </html>
